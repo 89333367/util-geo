@@ -30,7 +30,7 @@ public enum GeoUtil implements Serializable, Closeable {
     private String LIB_GEO_DATA = "libGeoData.so";
     private List<String> resourceFiles = Arrays.asList(PPC, PPM, GEO_DATA, LIB_GEO_DATA);
     private GeoData geoData;
-    private int splitNum = 6;
+    private int splitNum = 331;
 
     public GeoUtil build() {
         if (geoData == null) {

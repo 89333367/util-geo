@@ -23,7 +23,7 @@ public class Tests {
     void t002() {
         String inputFilePath = "D:\\GitLab\\dapr-service-geo\\src\\main\\resources\\china_desc.ppm"; // 大文件路径
         String outputDirPath = "d:/tmp/ppm"; // 拆分文件输出目录
-        int chunkSize = 50 * 1024 * 1024; // 拆分文件大小，这里设置为90MB
+        int chunkSize = 1 * 1024 * 1024; // 拆分文件大小，这里设置为90MB
         SplitFileUtil.splitFile(inputFilePath, outputDirPath, chunkSize);
     }
 
