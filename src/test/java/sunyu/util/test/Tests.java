@@ -16,7 +16,7 @@ public class Tests {
     void t001() {
         GeoUtil geoUtil = GeoUtil.INSTANCE.build();
         log.debug("{}", geoUtil.getAddress(118.829303, 36.740818));
-        //geoUtil.close();//如果项目不在使用，需要调用这个方法
+        //geoUtil.close();//如果项目不再使用，需要调用这个方法
     }
 
     @Test
