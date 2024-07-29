@@ -54,7 +54,7 @@ public enum GeoUtil implements Serializable, Closeable {
             geoData = new GeoData();
             geoData.load(userDir + "/" + PPM, userDir + "/" + PPC);
             if (geoData.isLoad()) {
-                log.debug("geo文件初始化完毕");
+                log.debug("GeoUtil初始化完毕");
             }
         }
         return INSTANCE;
@@ -68,7 +68,10 @@ public enum GeoUtil implements Serializable, Closeable {
      * @return 地址
      */
     synchronized public String getAddress(double lon, double lat) {
-        return geoData.positionDescript(lon, lat);
+        log.debug("参数 {} {}", lon, lat);
+        String address = geoData.positionDescript(lon, lat);
+        log.debug("响应值 {} {} {}", lon, lat, address);
+        return address;
     }
 
     @Override

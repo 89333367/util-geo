@@ -1,8 +1,9 @@
 package sunyu.util;
 
+import cn.hutool.log.StaticLog;
+
 import java.io.*;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -15,13 +16,10 @@ public class MergeFileUtil {
             return;
         }
         // 按文件名中的数字顺序排序
-        Arrays.sort(partFiles, new Comparator<File>() {
-            @Override
-            public int compare(File f1, File f2) {
-                String num1 = f1.getName().replaceAll(".*\\.part(\\d+)\\.zip$", "$1");
-                String num2 = f2.getName().replaceAll(".*\\.part(\\d+)\\.zip$", "$1");
-                return Integer.parseInt(num1) - Integer.parseInt(num2);
-            }
+        Arrays.sort(partFiles, (f1, f2) -> {
+            String num1 = f1.getName().replaceAll(".*\\.part(\\d+)\\.zip$", "$1");
+            String num2 = f2.getName().replaceAll(".*\\.part(\\d+)\\.zip$", "$1");
+            return Integer.parseInt(num1) - Integer.parseInt(num2);
         });
         // 确保输出目录存在
         File outputDir = new File(outputDirPath);
@@ -46,7 +44,7 @@ public class MergeFileUtil {
                     e.printStackTrace();
                 }
             }
-            System.out.println("File merge and unzip completed.");
+            StaticLog.debug("文件合并完毕，合并后文件 {} {}", outputDirPath, mergeFileName);
         } catch (IOException e) {
             e.printStackTrace();
         }

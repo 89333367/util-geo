@@ -20,7 +20,7 @@ public class GeoData {
             return new String(res, CharsetUtil.GBK);
         } catch (Exception e) {
             log.error(e);
-            return "";
+            return null;
         }
     }
 

@@ -1,5 +1,7 @@
 package sunyu.util;
 
+import cn.hutool.log.StaticLog;
+
 import java.io.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -30,7 +32,7 @@ public class SplitFileUtil {
                 currentSize += bytesRead;
             }
             closeQuietly(zipOut);
-            System.out.println("File split into parts and zipped completed.");
+            StaticLog.debug("文件切割完毕，请查看 {} 目录", outputDirPath);
         } catch (IOException e) {
             e.printStackTrace();
         }
