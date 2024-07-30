@@ -26,15 +26,21 @@ import java.util.zip.ZipOutputStream;
 public enum GeoUtil implements Serializable, Closeable {
     INSTANCE;
     private Log log = LogFactory.get();
-    private String userDir = System.getProperty("user.dir");
-    private String PPM = "china_desc.ppm";
-    private String PPC = "china_desc.ppc";
-    private String GEO_DATA = "GeoData.dll";
-    private String LIB_GEO_DATA = "libGeoData.so";
-    private List<String> resourceFiles = Arrays.asList(PPC, PPM, GEO_DATA, LIB_GEO_DATA);
-    private GeoData geoData;
-    private int splitNum = 331;
 
+    /**
+     * 获得工具类工厂
+     *
+     * @return
+     */
+    public static GeoUtil builder() {
+        return INSTANCE;
+    }
+
+    /**
+     * 构建工具类
+     *
+     * @return
+     */
     public GeoUtil build() {
         if (geoData == null) {
             log.debug("userDir {}", userDir);
@@ -64,19 +70,8 @@ public enum GeoUtil implements Serializable, Closeable {
     }
 
     /**
-     * 通过经纬度获取地址
-     *
-     * @param lon 经度
-     * @param lat 纬度
-     * @return 地址
+     * 回收资源
      */
-    synchronized public String getAddress(double lon, double lat) {
-        log.debug("参数 {} {}", lon, lat);
-        String address = geoData.positionDescript(lon, lat);
-        log.debug("响应值 {} {} {}", lon, lat, address);
-        return address;
-    }
-
     @Override
     public void close() {
         for (String resourceFile : resourceFiles) {
@@ -95,6 +90,30 @@ public enum GeoUtil implements Serializable, Closeable {
             }
         }
     }
+
+    private String userDir = System.getProperty("user.dir");
+    private String PPM = "china_desc.ppm";
+    private String PPC = "china_desc.ppc";
+    private String GEO_DATA = "GeoData.dll";
+    private String LIB_GEO_DATA = "libGeoData.so";
+    private List<String> resourceFiles = Arrays.asList(PPC, PPM, GEO_DATA, LIB_GEO_DATA);
+    private GeoData geoData;
+    private int splitNum = 331;
+
+    /**
+     * 通过经纬度获取地址
+     *
+     * @param lon 经度
+     * @param lat 纬度
+     * @return 地址
+     */
+    synchronized public String getAddress(double lon, double lat) {
+        log.debug("参数 {} {}", lon, lat);
+        String address = geoData.positionDescript(lon, lat);
+        log.debug("响应值 {} {} {}", lon, lat, address);
+        return address;
+    }
+
 
     public void mergeFiles(String inputDirPath, String outputDirPath, String mergeFileName) {
         File inputDir = new File(inputDirPath);

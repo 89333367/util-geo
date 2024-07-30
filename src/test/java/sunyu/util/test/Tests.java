@@ -12,7 +12,7 @@ public class Tests {
 
     @Test
     void t001() {
-        GeoUtil geoUtil = GeoUtil.INSTANCE.build();
+        GeoUtil geoUtil = GeoUtil.builder().build();
         log.debug("{}", geoUtil.getAddress(118.829303, 36.740818));
         //geoUtil.close();//如果项目不再使用，需要调用这个方法
     }
@@ -22,7 +22,7 @@ public class Tests {
         String inputFilePath = "D:\\GitLab\\dapr-service-geo\\src\\main\\resources\\china_desc.ppm"; // 大文件路径
         String outputDirPath = "d:/tmp/ppm"; // 拆分文件输出目录
         int chunkSize = 1 * 1024 * 1024; // 拆分文件大小，这里设置为不大于1M
-        GeoUtil.INSTANCE.splitFile(inputFilePath, outputDirPath, chunkSize);
+        GeoUtil.builder().splitFile(inputFilePath, outputDirPath, chunkSize);
     }
 
 
@@ -30,7 +30,7 @@ public class Tests {
     void t003() {
         String inputDirPath = "d:/tmp/ppm"; // 修改为实际分割文件所在目录路径
         String outputDirPath = "d:/tmp/ppm2"; // 修改为实际输出文件所在目录路径
-        GeoUtil.INSTANCE.mergeFiles(inputDirPath, outputDirPath, "china_desc.ppm");
+        GeoUtil.builder().mergeFiles(inputDirPath, outputDirPath, "china_desc.ppm");
     }
 
     @Test

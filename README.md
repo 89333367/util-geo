@@ -16,8 +16,8 @@
 ```java
 @Test
 void t001() {
-    GeoUtil geoUtil = GeoUtil.INSTANCE.build();//全局只需要定义一次
+    GeoUtil geoUtil = GeoUtil.builder().build();
     log.debug("{}", geoUtil.getAddress(118.829303, 36.740818));
-    //geoUtil.close();如果项目不在使用，可以调用这个方法
+    //geoUtil.close();//如果项目不再使用，需要调用这个方法
 }
 ```
