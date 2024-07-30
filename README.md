@@ -8,7 +8,7 @@
 <dependency>
     <groupId>sunyu.util</groupId>
     <artifactId>util-geo</artifactId>
-    <version>x86_v1.0</version>
+    <version>jdk8_x86_v1.0</version>
 </dependency>
 ```
 

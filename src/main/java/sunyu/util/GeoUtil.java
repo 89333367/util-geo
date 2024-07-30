@@ -7,13 +7,16 @@ import cn.hutool.core.io.resource.ResourceUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
+import cn.hutool.log.StaticLog;
 import cn.hutool.system.SystemUtil;
 import com.canna.geodata.GeoData;
 
-import java.io.Closeable;
-import java.io.Serializable;
+import java.io.*;
 import java.util.Arrays;
 import java.util.List;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
+import java.util.zip.ZipOutputStream;
 
 /**
  * 记亩工具类
@@ -41,7 +44,7 @@ public enum GeoUtil implements Serializable, Closeable {
                         String splitName = resourceFile + ".part" + StrUtil.fillBefore(Convert.toStr(i), '0', 3) + ".zip";
                         FileUtil.writeFromStream(ResourceUtil.getStream(splitName), userDir + "/" + splitName);
                     }
-                    MergeFileUtil.mergeFiles(userDir, userDir, PPM);
+                    mergeFiles(userDir, userDir, PPM);
                 } else {
                     FileUtil.writeFromStream(ResourceUtil.getStream(resourceFile), userDir + "/" + resourceFile);
                 }
@@ -92,4 +95,92 @@ public enum GeoUtil implements Serializable, Closeable {
             }
         }
     }
+
+    public void mergeFiles(String inputDirPath, String outputDirPath, String mergeFileName) {
+        File inputDir = new File(inputDirPath);
+        File[] partFiles = inputDir.listFiles((dir, name) -> name.matches(".*\\.part\\d+\\.zip$"));
+        if (partFiles == null || partFiles.length == 0) {
+            System.out.println("No part files found in the directory.");
+            return;
+        }
+        // 按文件名中的数字顺序排序
+        Arrays.sort(partFiles, (f1, f2) -> {
+            String num1 = f1.getName().replaceAll(".*\\.part(\\d+)\\.zip$", "$1");
+            String num2 = f2.getName().replaceAll(".*\\.part(\\d+)\\.zip$", "$1");
+            return Integer.parseInt(num1) - Integer.parseInt(num2);
+        });
+        // 确保输出目录存在
+        File outputDir = new File(outputDirPath);
+        if (!outputDir.exists()) {
+            outputDir.mkdirs();
+        }
+        // 合并文件名为 china_desc.ppm
+        File outputFile = new File(outputDir, mergeFileName);
+        try (BufferedOutputStream writer = new BufferedOutputStream(new FileOutputStream(outputFile))) {
+            for (File partFile : partFiles) {
+                try (ZipInputStream zipIn = new ZipInputStream(new FileInputStream(partFile))) {
+                    ZipEntry entry = zipIn.getNextEntry();
+                    if (entry != null) {
+                        byte[] buffer = new byte[1024];
+                        int bytesRead;
+                        while ((bytesRead = zipIn.read(buffer)) > 0) {
+                            writer.write(buffer, 0, bytesRead);
+                        }
+                        zipIn.closeEntry();
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            StaticLog.debug("文件合并完毕，合并后文件 {} {}", outputDirPath, mergeFileName);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void splitFile(String inputFilePath, String outputDirPath, int chunkSize) {
+        File inputFile = new File(inputFilePath);
+        File outputDir = new File(outputDirPath);
+        if (!outputDir.exists()) {
+            outputDir.mkdirs();
+        }
+        try (BufferedInputStream reader = new BufferedInputStream(new FileInputStream(inputFile))) {
+            byte[] buffer = new byte[1024];
+            int bytesRead;
+            int count = 0;
+            int currentSize = 0;
+            ZipOutputStream zipOut = null;
+            while ((bytesRead = reader.read(buffer)) > 0) {
+                if (zipOut == null || currentSize >= chunkSize) {
+                    closeQuietly(zipOut);
+                    String chunkFileName = String.format("%s.part%03d.zip", inputFile.getName(), count++);
+                    File chunkFile = new File(outputDir, chunkFileName);
+                    zipOut = new ZipOutputStream(new FileOutputStream(chunkFile));
+                    zipOut.putNextEntry(new ZipEntry(inputFile.getName()));
+                    currentSize = 0;
+                }
+                zipOut.write(buffer, 0, bytesRead);
+                currentSize += bytesRead;
+            }
+            closeQuietly(zipOut);
+            StaticLog.debug("文件切割完毕，请查看 {} 目录", outputDirPath);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void closeQuietly(ZipOutputStream zipOut) {
+        if (zipOut != null) {
+            try {
+                zipOut.close();
+            } catch (IOException e) {
+                // Ignore IOException on close
+            }
+        }
+    }
 }
+
+
+
+
+

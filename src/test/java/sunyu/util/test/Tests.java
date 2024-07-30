@@ -6,8 +6,6 @@ import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
 import org.junit.jupiter.api.Test;
 import sunyu.util.GeoUtil;
-import sunyu.util.MergeFileUtil;
-import sunyu.util.SplitFileUtil;
 
 public class Tests {
     private Log log = LogFactory.get();
@@ -23,8 +21,8 @@ public class Tests {
     void t002() {
         String inputFilePath = "D:\\GitLab\\dapr-service-geo\\src\\main\\resources\\china_desc.ppm"; // 大文件路径
         String outputDirPath = "d:/tmp/ppm"; // 拆分文件输出目录
-        int chunkSize = 1 * 1024 * 1024; // 拆分文件大小，这里设置为90MB
-        SplitFileUtil.splitFile(inputFilePath, outputDirPath, chunkSize);
+        int chunkSize = 1 * 1024 * 1024; // 拆分文件大小，这里设置为不大于1M
+        GeoUtil.INSTANCE.splitFile(inputFilePath, outputDirPath, chunkSize);
     }
 
 
@@ -32,7 +30,7 @@ public class Tests {
     void t003() {
         String inputDirPath = "d:/tmp/ppm"; // 修改为实际分割文件所在目录路径
         String outputDirPath = "d:/tmp/ppm2"; // 修改为实际输出文件所在目录路径
-        MergeFileUtil.mergeFiles(inputDirPath, outputDirPath, "china_desc.ppm");
+        GeoUtil.INSTANCE.mergeFiles(inputDirPath, outputDirPath, "china_desc.ppm");
     }
 
     @Test
