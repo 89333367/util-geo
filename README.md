@@ -1,10 +1,15 @@
 # GEO工具类
 
-> 通过经纬度可以转换出中文地址
-> 
-> 要求jdk8 x86版本，本工具类使用jdk8 x86版本编译
+## 描述
+
+* 通过经纬度可以转换出中文地址
+
+## 环境
+
+* jdk8 x86版本，本工具类使用jdk8 x86版本编译，只能在这个版本使用
 
 ```xml
+
 <dependency>
     <groupId>sunyu.util</groupId>
     <artifactId>util-geo</artifactId>
@@ -12,8 +17,8 @@
 </dependency>
 ```
 
-
 ```java
+
 @Test
 void t001() {
     GeoUtil geoUtil = GeoUtil.builder().build();

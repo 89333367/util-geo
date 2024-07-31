@@ -43,7 +43,6 @@ public enum GeoUtil implements Serializable, Closeable {
      */
     public GeoUtil build() {
         if (geoData == null) {
-            log.debug("userDir {}", userDir);
             for (String resourceFile : resourceFiles) {
                 if (resourceFile.equals(PPM)) {//ppm特殊处理，因为这个文件太大了，在resource中是压缩的，要先解压再合并成一个文件
                     for (int i = 0; i <= splitNum; i++) {
