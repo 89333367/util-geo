@@ -12,7 +12,7 @@ public class GeoData {
     private final byte[] VIEW_POINT = "FFFFFFFE".getBytes();
     private int handle = 0;
 
-    public synchronized String positionDescript(double lon, double lat) {
+    synchronized public String positionDescript(double lon, double lat) {
         try {
             int x = (int) (lon * 3600000.0D);
             int y = (int) (lat * 3600000.0D);

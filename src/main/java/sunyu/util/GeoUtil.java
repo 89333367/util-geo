@@ -2,7 +2,6 @@ package sunyu.util;
 
 import cn.hutool.core.convert.Convert;
 import cn.hutool.core.io.FileUtil;
-import cn.hutool.core.io.IORuntimeException;
 import cn.hutool.core.io.resource.ResourceUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.log.Log;
@@ -157,9 +156,14 @@ public class GeoUtil implements Serializable, Closeable {
      * @return
      */
     public GeoUtil build() {
-        if (geoData != null) {
+        log.info("构建工具开始");
+
+        if (geoData != null && geoData.isLoad()) {
+            log.warn("工具类已构建，请不要重复构建");
             return INSTANCE;
         }
+
+        log.info("释放动态链接库开始");
         for (String resourceFile : resourceFiles) {
             if (resourceFile.equals(PPM)) {//ppm特殊处理，因为这个文件太大了，在resource中是压缩的，要先解压再合并成一个文件
                 for (int i = 0; i <= splitNum; i++) {
@@ -171,16 +175,26 @@ public class GeoUtil implements Serializable, Closeable {
                 FileUtil.writeFromStream(ResourceUtil.getStream(resourceFile), userDir + "/" + resourceFile);
             }
         }
+        log.info("释放动态链接库完毕");
+
+        log.info("加载动态链接库开始");
         if (SystemUtil.getOsInfo().isWindows()) {
             System.load(userDir + "/" + GEO_DATA);
         } else {
             System.load(userDir + "/" + LIB_GEO_DATA);
         }
+        log.info("加载动态链接库完毕");
+
+        log.info("读取数据开始");
         geoData = new GeoData();
         geoData.load(userDir + "/" + PPM, userDir + "/" + PPC);
         if (geoData.isLoad()) {
-            log.debug("GeoUtil初始化完毕");
+            log.info("读取数据成功");
+        } else {
+            log.error("读取数据失败");
+            throw new RuntimeException("读取数据失败");
         }
+        log.info("构建工具完毕");
         return INSTANCE;
     }
 
@@ -189,21 +203,25 @@ public class GeoUtil implements Serializable, Closeable {
      */
     @Override
     public void close() {
+        log.info("销毁工具开始");
         for (String resourceFile : resourceFiles) {
             if (resourceFile.equals(PPM)) {
                 for (int i = 0; i <= splitNum; i++) {
                     String splitName = resourceFile + ".part" + StrUtil.fillBefore(Convert.toStr(i), '0', 3) + ".zip";
                     try {
                         FileUtil.del(userDir + "/" + splitName);
-                    } catch (IORuntimeException e) {
+                    } catch (Exception e) {
+                        log.warn(e.getMessage());
                     }
                 }
             }
             try {
                 FileUtil.del(userDir + "/" + resourceFile);
             } catch (Exception e) {
+                log.warn(e.getMessage());
             }
         }
+        log.info("销毁工具结束");
     }
 
 
