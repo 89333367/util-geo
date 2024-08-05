@@ -23,72 +23,10 @@ import java.util.zip.ZipOutputStream;
  *
  * @author 孙宇
  */
-public enum GeoUtil implements Serializable, Closeable {
-    INSTANCE;
+public class GeoUtil implements Serializable, Closeable {
     private Log log = LogFactory.get();
+    private static final GeoUtil INSTANCE = new GeoUtil();
 
-    /**
-     * 获得工具类工厂
-     *
-     * @return
-     */
-    public static GeoUtil builder() {
-        return INSTANCE;
-    }
-
-    /**
-     * 构建工具类
-     *
-     * @return
-     */
-    public GeoUtil build() {
-        if (geoData == null) {
-            for (String resourceFile : resourceFiles) {
-                if (resourceFile.equals(PPM)) {//ppm特殊处理，因为这个文件太大了，在resource中是压缩的，要先解压再合并成一个文件
-                    for (int i = 0; i <= splitNum; i++) {
-                        String splitName = resourceFile + ".part" + StrUtil.fillBefore(Convert.toStr(i), '0', 3) + ".zip";
-                        FileUtil.writeFromStream(ResourceUtil.getStream(splitName), userDir + "/" + splitName);
-                    }
-                    mergeFiles(userDir, userDir, PPM);
-                } else {
-                    FileUtil.writeFromStream(ResourceUtil.getStream(resourceFile), userDir + "/" + resourceFile);
-                }
-            }
-            if (SystemUtil.getOsInfo().isWindows()) {
-                System.load(userDir + "/" + GEO_DATA);
-            } else {
-                System.load(userDir + "/" + LIB_GEO_DATA);
-            }
-            geoData = new GeoData();
-            geoData.load(userDir + "/" + PPM, userDir + "/" + PPC);
-            if (geoData.isLoad()) {
-                log.debug("GeoUtil初始化完毕");
-            }
-        }
-        return INSTANCE;
-    }
-
-    /**
-     * 回收资源
-     */
-    @Override
-    public void close() {
-        for (String resourceFile : resourceFiles) {
-            if (resourceFile.equals(PPM)) {
-                for (int i = 0; i <= splitNum; i++) {
-                    String splitName = resourceFile + ".part" + StrUtil.fillBefore(Convert.toStr(i), '0', 3) + ".zip";
-                    try {
-                        FileUtil.del(userDir + "/" + splitName);
-                    } catch (IORuntimeException e) {
-                    }
-                }
-            }
-            try {
-                FileUtil.del(userDir + "/" + resourceFile);
-            } catch (Exception e) {
-            }
-        }
-    }
 
     private String userDir = System.getProperty("user.dir");
     private String PPM = "china_desc.ppm";
@@ -196,6 +134,79 @@ public enum GeoUtil implements Serializable, Closeable {
             }
         }
     }
+
+
+    /**
+     * 私有构造，避免外部初始化
+     */
+    private GeoUtil() {
+    }
+
+    /**
+     * 获得工具类工厂
+     *
+     * @return
+     */
+    public static GeoUtil builder() {
+        return INSTANCE;
+    }
+
+    /**
+     * 构建工具类
+     *
+     * @return
+     */
+    public GeoUtil build() {
+        if (geoData != null) {
+            return INSTANCE;
+        }
+        for (String resourceFile : resourceFiles) {
+            if (resourceFile.equals(PPM)) {//ppm特殊处理，因为这个文件太大了，在resource中是压缩的，要先解压再合并成一个文件
+                for (int i = 0; i <= splitNum; i++) {
+                    String splitName = resourceFile + ".part" + StrUtil.fillBefore(Convert.toStr(i), '0', 3) + ".zip";
+                    FileUtil.writeFromStream(ResourceUtil.getStream(splitName), userDir + "/" + splitName);
+                }
+                mergeFiles(userDir, userDir, PPM);
+            } else {
+                FileUtil.writeFromStream(ResourceUtil.getStream(resourceFile), userDir + "/" + resourceFile);
+            }
+        }
+        if (SystemUtil.getOsInfo().isWindows()) {
+            System.load(userDir + "/" + GEO_DATA);
+        } else {
+            System.load(userDir + "/" + LIB_GEO_DATA);
+        }
+        geoData = new GeoData();
+        geoData.load(userDir + "/" + PPM, userDir + "/" + PPC);
+        if (geoData.isLoad()) {
+            log.debug("GeoUtil初始化完毕");
+        }
+        return INSTANCE;
+    }
+
+    /**
+     * 回收资源
+     */
+    @Override
+    public void close() {
+        for (String resourceFile : resourceFiles) {
+            if (resourceFile.equals(PPM)) {
+                for (int i = 0; i <= splitNum; i++) {
+                    String splitName = resourceFile + ".part" + StrUtil.fillBefore(Convert.toStr(i), '0', 3) + ".zip";
+                    try {
+                        FileUtil.del(userDir + "/" + splitName);
+                    } catch (IORuntimeException e) {
+                    }
+                }
+            }
+            try {
+                FileUtil.del(userDir + "/" + resourceFile);
+            } catch (Exception e) {
+            }
+        }
+    }
+
+
 }
 
 
