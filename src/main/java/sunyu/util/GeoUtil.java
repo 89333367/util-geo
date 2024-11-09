@@ -1,16 +1,17 @@
 package sunyu.util;
 
 import cn.hutool.core.convert.Convert;
+import cn.hutool.core.exceptions.ExceptionUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.resource.ResourceUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
-import cn.hutool.log.StaticLog;
 import cn.hutool.system.SystemUtil;
 import com.canna.geodata.GeoData;
 
 import java.io.*;
+import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.List;
 import java.util.zip.ZipEntry;
@@ -23,18 +24,17 @@ import java.util.zip.ZipOutputStream;
  * @author 孙宇
  */
 public class GeoUtil implements Serializable, Closeable {
-    private Log log = LogFactory.get();
+    private final Log log = LogFactory.get();
     private static final GeoUtil INSTANCE = new GeoUtil();
 
-
-    private String userDir = System.getProperty("user.dir");
-    private String PPM = "china_desc.ppm";
-    private String PPC = "china_desc.ppc";
-    private String GEO_DATA = "GeoData.dll";
-    private String LIB_GEO_DATA = "libGeoData.so";
-    private List<String> resourceFiles = Arrays.asList(PPC, PPM, GEO_DATA, LIB_GEO_DATA);
+    private final String userDir = System.getProperty("user.dir");
+    private final String PPM = "china_desc.ppm";
+    private final String PPC = "china_desc.ppc";
+    private final String GEO_DATA = "GeoData.dll";
+    private final String LIB_GEO_DATA = "libGeoData.so";
+    private final List<String> resourceFiles = Arrays.asList(PPC, PPM, GEO_DATA, LIB_GEO_DATA);
     private GeoData geoData;
-    private int splitNum = 331;
+    private final int splitNum = 331;
 
     /**
      * 通过经纬度获取地址
@@ -55,7 +55,7 @@ public class GeoUtil implements Serializable, Closeable {
         File inputDir = new File(inputDirPath);
         File[] partFiles = inputDir.listFiles((dir, name) -> name.matches(".*\\.part\\d+\\.zip$"));
         if (partFiles == null || partFiles.length == 0) {
-            System.out.println("No part files found in the directory.");
+            log.error("在目录中没有找到分片文件");
             return;
         }
         // 按文件名中的数字顺序排序
@@ -71,9 +71,9 @@ public class GeoUtil implements Serializable, Closeable {
         }
         // 合并文件名为 china_desc.ppm
         File outputFile = new File(outputDir, mergeFileName);
-        try (BufferedOutputStream writer = new BufferedOutputStream(new FileOutputStream(outputFile))) {
+        try (BufferedOutputStream writer = new BufferedOutputStream(Files.newOutputStream(outputFile.toPath()))) {
             for (File partFile : partFiles) {
-                try (ZipInputStream zipIn = new ZipInputStream(new FileInputStream(partFile))) {
+                try (ZipInputStream zipIn = new ZipInputStream(Files.newInputStream(partFile.toPath()))) {
                     ZipEntry entry = zipIn.getNextEntry();
                     if (entry != null) {
                         byte[] buffer = new byte[1024];
@@ -84,12 +84,12 @@ public class GeoUtil implements Serializable, Closeable {
                         zipIn.closeEntry();
                     }
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    log.error("压缩文件异常 {}", ExceptionUtil.stacktraceToString(e));
                 }
             }
-            StaticLog.debug("文件合并完毕，合并后文件 {} {}", outputDirPath, mergeFileName);
+            log.debug("文件合并完毕，合并后文件 {} {}", outputDirPath, mergeFileName);
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("合并文件异常 {}", ExceptionUtil.stacktraceToString(e));
         }
     }
 
@@ -99,7 +99,7 @@ public class GeoUtil implements Serializable, Closeable {
         if (!outputDir.exists()) {
             outputDir.mkdirs();
         }
-        try (BufferedInputStream reader = new BufferedInputStream(new FileInputStream(inputFile))) {
+        try (BufferedInputStream reader = new BufferedInputStream(Files.newInputStream(inputFile.toPath()))) {
             byte[] buffer = new byte[1024];
             int bytesRead;
             int count = 0;
@@ -110,7 +110,7 @@ public class GeoUtil implements Serializable, Closeable {
                     closeQuietly(zipOut);
                     String chunkFileName = String.format("%s.part%03d.zip", inputFile.getName(), count++);
                     File chunkFile = new File(outputDir, chunkFileName);
-                    zipOut = new ZipOutputStream(new FileOutputStream(chunkFile));
+                    zipOut = new ZipOutputStream(Files.newOutputStream(chunkFile.toPath()));
                     zipOut.putNextEntry(new ZipEntry(inputFile.getName()));
                     currentSize = 0;
                 }
@@ -118,9 +118,9 @@ public class GeoUtil implements Serializable, Closeable {
                 currentSize += bytesRead;
             }
             closeQuietly(zipOut);
-            StaticLog.debug("文件切割完毕，请查看 {} 目录", outputDirPath);
+            log.debug("文件切割完毕，请查看 {} 目录", outputDirPath);
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("切割文件异常 {}", ExceptionUtil.stacktraceToString(e));
         }
     }
 
@@ -211,14 +211,14 @@ public class GeoUtil implements Serializable, Closeable {
                     try {
                         FileUtil.del(userDir + "/" + splitName);
                     } catch (Exception e) {
-                        log.warn(e.getMessage());
+                        log.warn("清理资源异常 {}", ExceptionUtil.stacktraceToString(e));
                     }
                 }
             }
             try {
                 FileUtil.del(userDir + "/" + resourceFile);
             } catch (Exception e) {
-                log.warn(e.getMessage());
+                log.warn("清理资源异常 {}", ExceptionUtil.stacktraceToString(e));
             }
         }
         log.info("销毁工具结束");

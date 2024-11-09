@@ -1,11 +1,12 @@
 package com.canna.geodata;
 
+import cn.hutool.core.exceptions.ExceptionUtil;
 import cn.hutool.core.util.CharsetUtil;
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
 
 public class GeoData {
-    private Log log = LogFactory.get();
+    private final Log log = LogFactory.get();
 
     private final byte[] VIEW_AREA = "0000000007".getBytes();
     private final byte[] VIEW_LINE = "00000001F8".getBytes();
@@ -19,7 +20,7 @@ public class GeoData {
             byte[] res = this.npositionDescript(this.handle, x, y, VIEW_AREA, VIEW_LINE, 10000, VIEW_POINT, 10000);
             return new String(res, CharsetUtil.GBK);
         } catch (Exception e) {
-            log.error(e);
+            log.error("解析描述异常 {}", ExceptionUtil.stacktraceToString(e));
             return null;
         }
     }
