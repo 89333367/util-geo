@@ -13,7 +13,8 @@
 <dependency>
     <groupId>sunyu.util</groupId>
     <artifactId>util-geo</artifactId>
-    <version>jdk8_x86_v1.0</version>
+    <!-- {util.version}_{jdk.version}_{architecture.version} -->
+    <version>1.0_jdk8_x86</version>
 </dependency>
 ```
 
@@ -23,6 +24,7 @@
 void t001() {
     GeoUtil geoUtil = GeoUtil.builder().build();
     log.debug("{}", geoUtil.getAddress(118.829303, 36.740818));
+    
     //geoUtil.close();//如果项目不再使用，需要调用这个方法
 }
 ```
