@@ -35,9 +35,9 @@ public class GeoUtil implements AutoCloseable {
     }
 
     private GeoUtil(Config config) {
-        log.info("[构建GeoUtil] 开始");
+        log.info("[构建 {}] 开始", this.getClass().getSimpleName());
 
-        log.info("释放动态链接库 开始");
+        log.info("[释放动态链接库] 开始");
         for (String resourceFile : config.resourceFiles) {
             if (resourceFile.equals(config.PPM)) {//ppm特殊处理，因为这个文件太大了，在resource中是压缩的，要先解压再合并成一个文件
                 for (int i = 0; i <= config.splitNum; i++) {
@@ -49,26 +49,26 @@ public class GeoUtil implements AutoCloseable {
                 FileUtil.writeFromStream(ResourceUtil.getStream(resourceFile), config.userDir + "/" + resourceFile);
             }
         }
-        log.info("释放动态链接库 结束");
+        log.info("[释放动态链接库] 结束");
 
-        log.info("加载动态链接库开始");
+        log.info("[加载动态链接库] 开始");
         if (SystemUtil.getOsInfo().isWindows()) {
             System.load(config.userDir + "/" + config.GEO_DATA);
         } else {
             System.load(config.userDir + "/" + config.LIB_GEO_DATA);
         }
-        log.info("加载动态链接库 结束");
+        log.info("[加载动态链接库] 结束");
 
-        log.info("读取数据开始");
+        log.info("[读取数据] 开始");
         config.geoData = new GeoData();
         config.geoData.load(config.userDir + "/" + config.PPM, config.userDir + "/" + config.PPC);
         if (config.geoData.isLoad()) {
-            log.info("读取数据成功");
+            log.info("[读取数据] 成功");
         } else {
-            log.error("读取数据失败");
+            log.error("[读取数据] 失败");
             throw new RuntimeException("读取数据失败");
         }
-        log.info("[构建GeoUtil] 结束");
+        log.info("[构建 {}] 结束", this.getClass().getSimpleName());
 
         this.config = config;
     }
@@ -97,7 +97,7 @@ public class GeoUtil implements AutoCloseable {
      */
     @Override
     public void close() {
-        log.info("[销毁GeoUtil] 开始");
+        log.info("[销毁 {}] 开始", this.getClass().getSimpleName());
         for (String resourceFile : config.resourceFiles) {
             if (resourceFile.equals(config.PPM)) {
                 for (int i = 0; i <= config.splitNum; i++) {
@@ -105,17 +105,17 @@ public class GeoUtil implements AutoCloseable {
                     try {
                         FileUtil.del(config.userDir + "/" + splitName);
                     } catch (Exception e) {
-                        log.warn("清理资源异常 {}", ExceptionUtil.stacktraceToString(e));
+                        log.warn("[清理资源异常] {}", ExceptionUtil.stacktraceToString(e));
                     }
                 }
             }
             try {
                 FileUtil.del(config.userDir + "/" + resourceFile);
             } catch (Exception e) {
-                log.warn("清理资源异常 {}", ExceptionUtil.stacktraceToString(e));
+                log.warn("[清理资源异常] {}", ExceptionUtil.stacktraceToString(e));
             }
         }
-        log.info("[销毁GeoUtil] 结束");
+        log.info("[销毁 {}] 结束", this.getClass().getSimpleName());
     }
 
     /**
@@ -123,12 +123,13 @@ public class GeoUtil implements AutoCloseable {
      *
      * @param lon 经度
      * @param lat 纬度
+     *
      * @return 地址
      */
     synchronized public String getAddress(double lon, double lat) {
-        log.debug("参数 {} {}", lon, lat);
+        log.debug("[参数] {} {}", lon, lat);
         String address = config.geoData.positionDescript(lon, lat);
-        log.debug("响应值 {} {} {}", lon, lat, address);
+        log.debug("[响应值] {} {} {}", lon, lat, address);
         return address;
     }
 
@@ -166,12 +167,12 @@ public class GeoUtil implements AutoCloseable {
                         zipIn.closeEntry();
                     }
                 } catch (IOException e) {
-                    log.error("压缩文件异常 {}", ExceptionUtil.stacktraceToString(e));
+                    log.error("[压缩文件异常] {}", ExceptionUtil.stacktraceToString(e));
                 }
             }
-            log.debug("文件合并完毕，合并后文件 {} {}", outputDirPath, mergeFileName);
+            log.debug("[文件合并完毕] 合并后文件 {} {}", outputDirPath, mergeFileName);
         } catch (IOException e) {
-            log.error("合并文件异常 {}", ExceptionUtil.stacktraceToString(e));
+            log.error("[合并文件异常] {}", ExceptionUtil.stacktraceToString(e));
         }
     }
 
@@ -200,9 +201,9 @@ public class GeoUtil implements AutoCloseable {
                 currentSize += bytesRead;
             }
             closeQuietly(zipOut);
-            log.debug("文件切割完毕，请查看 {} 目录", outputDirPath);
+            log.debug("[文件切割完毕] 请查看 {} 目录", outputDirPath);
         } catch (IOException e) {
-            log.error("切割文件异常 {}", ExceptionUtil.stacktraceToString(e));
+            log.error("[切割文件异常] {}", ExceptionUtil.stacktraceToString(e));
         }
     }
 
