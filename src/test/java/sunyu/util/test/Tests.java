@@ -1,11 +1,11 @@
 package sunyu.util.test;
 
+import org.junit.jupiter.api.Test;
+
 import cn.hutool.core.convert.Convert;
 import cn.hutool.core.util.StrUtil;
-import cn.hutool.core.util.ZipUtil;
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
-import org.junit.jupiter.api.Test;
 import sunyu.util.GeoUtil;
 
 public class Tests {
@@ -27,7 +27,6 @@ public class Tests {
         int chunkSize = 1 * 1024 * 1024; // 拆分文件大小，这里设置为不大于1M
         geoUtil.splitFile(inputFilePath, outputDirPath, chunkSize);
     }
-
 
     @Test
     void t003() {

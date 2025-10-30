@@ -34,7 +34,8 @@ public class GeoData {
         return this.handle != 0;
     }
 
-    private native byte[] npositionDescript(int var1, int var2, int var3, byte[] var4, byte[] var5, int var6, byte[] var7, int var8);
+    private native byte[] npositionDescript(int var1, int var2, int var3, byte[] var4, byte[] var5, int var6,
+            byte[] var7, int var8);
 
     private native int nload(String var1, String var2);
 }

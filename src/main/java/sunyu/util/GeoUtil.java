@@ -1,15 +1,5 @@
 package sunyu.util;
 
-import cn.hutool.core.convert.Convert;
-import cn.hutool.core.exceptions.ExceptionUtil;
-import cn.hutool.core.io.FileUtil;
-import cn.hutool.core.io.resource.ResourceUtil;
-import cn.hutool.core.util.StrUtil;
-import cn.hutool.log.Log;
-import cn.hutool.log.LogFactory;
-import cn.hutool.system.SystemUtil;
-import com.canna.geodata.GeoData;
-
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -20,6 +10,17 @@ import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
+
+import com.canna.geodata.GeoData;
+
+import cn.hutool.core.convert.Convert;
+import cn.hutool.core.exceptions.ExceptionUtil;
+import cn.hutool.core.io.FileUtil;
+import cn.hutool.core.io.resource.ResourceUtil;
+import cn.hutool.core.util.StrUtil;
+import cn.hutool.log.Log;
+import cn.hutool.log.LogFactory;
+import cn.hutool.system.SystemUtil;
 
 /**
  * 记亩工具类
@@ -132,7 +133,6 @@ public class GeoUtil implements AutoCloseable {
         log.debug("[响应值] {} {} {}", lon, lat, address);
         return address;
     }
-
 
     public void mergeFiles(String inputDirPath, String outputDirPath, String mergeFileName) {
         File inputDir = new File(inputDirPath);
