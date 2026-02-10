@@ -14,7 +14,7 @@
     <groupId>sunyu.util</groupId>
     <artifactId>util-geo</artifactId>
     <!-- {util.version}_{jdk.version}_{architecture.version} -->
-    <version>1.0_jdk8_x86</version>
+    <version>2.0_jdk8_x86</version>
     <classifier>shaded</classifier>
 </dependency>
 ```
